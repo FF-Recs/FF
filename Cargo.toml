@@ -1,0 +1,11 @@
+[workspace]
+members = ["core", "corpus-builder", "test-support"]
+default-members = ["corpus-builder"]
+resolver = "3"
+
+[profile.release]
+debug = 1
+
+[profile.dev]
+debug = 0
+incremental = false

@@ -1,0 +1,87 @@
+name: Corpus release
+# Corpus generation and publication require an explicit manual dispatch.
+
+on:
+  workflow_dispatch:
+    inputs:
+      export_date:
+        description: Same-date upstream export date (YYYY-MM-DD)
+        required: true
+        type: string
+      user_agent:
+        description: Identifiable upstream User-Agent with your contact/username
+        required: true
+        type: string
+      publish:
+        description: Publish the verified corpus as a new manifest-addressed release
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corpus-release
+  cancel-in-progress: false
+
+jobs:
+  corpus:
+    if: github.repository == 'FF-Recs/FF'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    # GitHub permissions are job-scoped, not step-scoped. Only this manual job
+    # can publish; generation commands never receive the publication token.
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the exact source revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Restore Rust build cache
+        id: cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            .workdir/cargo-home/registry
+            .workdir/rustup-home
+            .workdir/cargo-target
+          key: corpus-build-v1-${{ runner.os }}-${{ runner.arch }}-ubuntu24-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'core/Cargo.toml', 'corpus-builder/Cargo.toml', 'test-support/Cargo.toml', '.cargo/config.toml', 'scripts/build-corpus-release.sh', '.github/workflows/corpus-release.yml') }}-${{ github.sha }}
+          restore-keys: |
+            corpus-build-v1-${{ runner.os }}-${{ runner.arch }}-ubuntu24-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'core/Cargo.toml', 'corpus-builder/Cargo.toml', 'test-support/Cargo.toml', '.cargo/config.toml', 'scripts/build-corpus-release.sh', '.github/workflows/corpus-release.yml') }}-
+            corpus-build-v1-${{ runner.os }}-${{ runner.arch }}-ubuntu24-${{ hashFiles('rust-toolchain.toml') }}-
+
+      - name: Test, download, generate and verify
+        id: build
+        env:
+          EXPORT_DATE: ${{ inputs.export_date }}
+          USER_AGENT: ${{ inputs.user_agent }}
+        run: bash scripts/build-corpus-release.sh "$EXPORT_DATE" "$USER_AGENT"
+
+      # Build artifacts remain reusable even when generation or publication fails.
+      # Cache hits never skip tests or corpus verification.
+      - name: Save Rust build cache
+        if: ${{ !cancelled() && steps.cache.outcome == 'success' && steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            .workdir/cargo-home/registry
+            .workdir/rustup-home
+            .workdir/cargo-target
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: Publish the verified release
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PATH: ${{ steps.build.outputs.release_path }}
+          SOURCE_REVISION: ${{ github.sha }}
+        run: |
+          printf 'Disk snapshot sample before publication (not an exact peak)\n'
+          df -h -- "$GITHUB_WORKSPACE"
+          trap 'printf "Disk snapshot sample after publication (not an exact peak)\n"; df -h -- "$GITHUB_WORKSPACE"' EXIT
+          /usr/bin/time -v python3 scripts/publish-corpus.py "$RELEASE_PATH" "$SOURCE_REVISION"

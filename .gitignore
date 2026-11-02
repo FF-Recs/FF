@@ -1,0 +1,22 @@
+# Local raw inputs, immutable corpora, and mutable user state
+/data/
+*.log
+/.tmp/
+/.workdir/
+
+# Nix build outputs and environment
+/result
+/result-*
+/.direnv/
+
+# Local identity, credentials and assistant configuration
+/.envrc
+/.env
+/.env.*
+/.omp/
+
+# Cargo outputs (the configured shared target lives under .workdir/)
+**/target/
+
+# Python publisher test/import bytecode
+__pycache__/

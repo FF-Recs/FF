@@ -1,0 +1,31 @@
+[package]
+name = "ff-corpus-builder"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"
+hex = "0.4"
+memmap2 = "0.9"
+bytemuck = "1"
+parquet = { version = "56", default-features = false, features = ["snap", "zstd", "flate2-zlib-rs"] }
+csv = "1"
+flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
+tempfile = "3"
+uuid = { version = "1", features = ["v4"] }
+ff-core = { path = "../core" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking"] }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+safetensors = "=0.8.0"
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "1", features = ["fs"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem"] }
+
+[dev-dependencies]
+parking_lot = "0.12"

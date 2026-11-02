@@ -1,0 +1,11 @@
+[package]
+name = "ff-test-support"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1"
+parquet = { version = "56", default-features = false, features = ["snap", "zstd", "flate2-zlib-rs"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"
