@@ -38,7 +38,7 @@ pub(super) fn fixture(root: &Path) -> BuildOptions {
     let mut tags = String::new();
     let mut decoder = flate2::read::MultiGzDecoder::new(fs::File::open(&options.tags).unwrap());
     std::io::Read::read_to_string(&mut decoder, &mut tags).unwrap();
-    tags.push_str("105,conditional_dnp,1\n106,third-party_edit,1\n107,sound_warning,1\n108,ai_assisted,1\n109,ai_generated_background,1\n110,anonymous_artist,1\n300,copyright50,3\n301,copyright49,3\n302,character50,4\n303,character49,4\n304,species50,5\n305,species49,5\n");
+    tags.push_str("105,conditional_dnp,1\n106,third-party_edit,1\n107,sound_warning,1\n108,ai_assisted,1\n109,ai_generated_background,1\n110,anonymous_artist,1\n111,epilepsy_warning,1\n112,avoid_posting,1\n113,jumpscare_warning,1\n114,ai_generated_reference,1\n115,eyestrain_warning,1\n116,motion_sickness_warning,1\n300,copyright50,3\n301,copyright49,3\n302,character50,4\n303,character49,4\n304,species50,5\n305,species49,5\n");
     gzip(&options.tags, &tags);
     gzip(
         &options.aliases,
@@ -68,7 +68,7 @@ pub(super) fn fixture(root: &Path) -> BuildOptions {
             names.push_str(" rare_content boundary49_metadata boundary49_metadata copyright49 character49 species49");
         }
         if id <= 10 {
-            names.push_str(" artist_a unknown_artist conditional_dnp third-party_edit sound_warning ai_assisted ai_generated_background anonymous_artist");
+            names.push_str(" artist_a unknown_artist conditional_dnp third-party_edit sound_warning ai_assisted ai_generated_background anonymous_artist epilepsy_warning avoid_posting jumpscare_warning ai_generated_reference eyestrain_warning motion_sickness_warning");
         }
         if (6..=17).contains(&id) {
             names.push_str(" artist_b");

@@ -68,6 +68,12 @@ fn extraction_filters_flash_before_thresholds_closure_and_artist_membership() {
         "ai_generated_background",
         "unknown_artist",
         "anonymous_artist",
+        "epilepsy_warning",
+        "avoid_posting",
+        "jumpscare_warning",
+        "ai_generated_reference",
+        "eyestrain_warning",
+        "motion_sickness_warning",
     ];
     for name in pseudo_artists {
         let global = catalog.resolve(name).unwrap();
@@ -176,14 +182,20 @@ fn extraction_filters_flash_before_thresholds_closure_and_artist_membership() {
         [
             "ai_assisted",
             "ai_generated_background",
+            "ai_generated_reference",
             "anonymous_artist",
             "artist_a",
+            "avoid_posting",
             "canine",
             "character50",
             "conditional_dnp",
             "copyright50",
+            "epilepsy_warning",
+            "eyestrain_warning",
             "fox",
             "implied_metadata",
+            "jumpscare_warning",
+            "motion_sickness_warning",
             "sound_warning",
             "species50",
             "supported_metadata",

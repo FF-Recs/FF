@@ -37,6 +37,12 @@ pub const PSEUDO_ARTISTS: &[&str] = &[
     "ai_generated_background",
     "unknown_artist",
     "anonymous_artist",
+    "epilepsy_warning",
+    "avoid_posting",
+    "jumpscare_warning",
+    "ai_generated_reference",
+    "eyestrain_warning",
+    "motion_sickness_warning",
 ];
 
 pub fn extension_code(value: &str) -> Result<u8> {
